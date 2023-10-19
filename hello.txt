@@ -1,2 +1,3 @@
 echo "HELLO"
 echo "bye"
+echo "Today is good"
