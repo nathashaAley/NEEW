@@ -2,3 +2,8 @@ echo "HELLO"
 echo "bye"
 echo "Today is good"
 echo "Today is gd"
+
+echo "HELLO"
+echo "bye"
+echo "Today is good"
+echo "Today is gd"
