@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB Connect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h2>DB Connect</h2>
+        <div class="toggle-container">
+            <label class="switch">
+                <input type="checkbox" id="toggle-dark-mode">
+                <span class="slider"></span>
+            </label>
+            <span>Dark Mode</span>
+        </div>
+    </div>
+
+    <!-- Curved modal container -->
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>DB Connect</h2>
+            <form action="/db_connect" method="POST">
+                <div class="form-group">
+                    <label for="db_username">Username</label>
+                    <input type="text" id="db_username" name="db_username" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_password">Password</label>
+                    <input type="password" id="db_password" name="db_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_host">Host</label>
+                    <input type="text" id="db_host" name="db_host" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_port">Port</label>
+                    <input type="text" id="db_port" name="db_port" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_service_name">Service Name</label>
+                    <input type="text" id="db_service_name" name="db_service_name" required>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Connect">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript for modal functionality -->
+    <script>
+        // Get the modal
+        var modal = document.querySelector('.modal');
+
+        // Get the button that opens the modal
+        var dbConnectBtn = document.getElementById("db_connect_button");
+
+        // Get the <span> element that closes the modal
+        var closeBtn = document.querySelector('.close-btn');
+
+        // When the user clicks the button, open the modal 
+        dbConnectBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href=".\static\style\style.css">
+    <link rel="stylesheet" href=".\static\style\useradd.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Add this to your <head> section -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+</head>
+<body>
+    <div class="header">
+        <div class="nav-left">
+            <div class="hamburger" onclick="openNav()">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <span>Welcome, {{ username }}</span>
+        </div>
+        <div class="nav-right">
+            <a href="#" id="db-connect-btn" class="db-connect-btn">DB Connect</a>
+            <a href="#" id="ssh-connect-btn" class="ssh-connect-btn">SSH Connect</a>
+            <span id="ssh-status" class="status-indicator"></span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
+            </label>
+            <a class="logout-btn" href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div id="side-menu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">&times;</a>
+        <button class="menu-item">Option 1</button>
+        <button class="menu-item">Option 2</button>
+        <button class="menu-item">Option 3</button>
+        <button class="menu-item">Option 4</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="card-container">
+            {% for card in cards %}
+                <div class="card" id="{{ card|lower|replace(' ', '-') }}-card">
+                    {% if card == 'CPU Utilization' %}
+                        <h3>{{ card }}</h3>
+                        <canvas id="cpu-chart" width="800" height="200"></canvas>
+                    {% else %}
+                        <h3>{{ card }}</h3>
+                        {% if card == 'Session Locks' %}
+                            <div id="session-locks-list">
+                                <!-- Session locks will be populated dynamically -->
+                            </div>
+                           
+                        {% elif card == 'Log4j Vulnerabilities' %}
+                            <div id="log4j-vulnerabilities-list">
+                                <!-- Vulnerabilities will be populated dynamically -->
+                            </div>
+                        {% elif card == 'Concurrent Programs' %}
+                            <div id="Concurrent-Programs">
+                                <!-- Concurrent Programs will be populated dynamically -->
+                            </div>
+                        {% elif card == 'Long-Running Queries' %}
+                            <form id="long-running-queries-form">
+                                <input type="text" id="long-running-queries-input" placeholder="Enter the elapsed time...">
+                                <input type="submit" value="Fetch Queries">
+                            </form>
+                            <div id="long-running-queries-output">
+                                <!-- Long-running queries will be populated dynamically -->
+                            </div>
+                        {% elif card == 'Add Data Files' %}
+                            <form id="add-data-files-form">
+                                <input type="text" id="add-data-files-input" placeholder="Enter data file...">
+                                <input type="submit" value="Add Data File">
+                            </form>
+                            <!-- Additional logic for Add Data Files card -->
+                        {% elif card == 'Kill Session Locks' %}
+                            <!-- Logic for Kill Session Locks card -->
+                        {% elif card == 'Request ID from SID' %}
+                            <!-- Logic for Request ID from SID card -->
+                        {% elif card == 'SID from PID' %}
+                            <!-- Logic for SID from PID card -->
+                        {% elif card == 'ID from Request ID' %}
+                            <!-- Logic for ID from Request ID card -->
+                        {% elif card == 'Create User' %}
+                            <button id="create-user-btn">Create User</button>
+                            <div id="create-user-popup" class="popup">
+                                <div class="popup-content">
+                                    <span class="close">&times;</span>
+                                    <form id="create-user-form">
+                                        <label for="username">Username:</label>
+                                        <input type="text" name="username" id="username" required><br>
+                                        
+                                        <label for="password">Password:</label>
+                                        <input type="password" name="password" id="password" required><br>
+                                        
+                                        <label for="default_tablespace">Default Tablespace:</label>
+                                        <select name="default_tablespace" id="default_tablespace" required>
+                                            <option value="USERS">USERS</option>
+                                            <option value="DATA">DATA</option>
+                                            <!-- Add other options as needed -->
+                                        </select><br>
+                                        
+                                        <label for="temporary_tablespace">Temporary Tablespace:</label>
+                                        <select name="temporary_tablespace" id="temporary_tablespace" required>
+                                            <option value="TEMP">TEMP</option>
+                                            <option value="TEMP2">TEMP2</option>
+                                            <!-- Add other options as needed -->
+                                        </select><br>
+                                        
+                                        <label for="profile">Profile:</label>
+                                        <select name="profile" id="profile" required>
+                                            <option value="DEFAULT">DEFAULT</option>
+                                            <option value="APP_USER">APP_USER</option>
+                                            <!-- Add other options as needed -->
+                                        </select><br>
+                                        
+                                        <label for="account_status">Account Status:</label>
+                                        <select name="account_status" id="account_status" required>
+                                            <option value="UNLOCK">UNLOCK</option>
+                                            <option value="LOCK">LOCK</option>
+                                        </select><br>
+                                        
+                                        <label>Privileges to be granted:</label><br>
+                                        <div class="scrollable-container">
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" name="privileges" value="CREATE SESSION" id="privilege_create_session">
+                                                <label for="privilege_create_session">CREATE SESSION</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE TABLE" id="privilege_create_table">
+                                                <label for="privilege_create_table">CREATE TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE VIEW" id="privilege_create_view">
+                                                <label for="privilege_create_view">CREATE VIEW</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE PROCEDURE" id="privilege_create_procedure">
+                                                <label for="privilege_create_procedure">CREATE PROCEDURE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE SEQUENCE" id="privilege_create_sequence">
+                                                <label for="privilege_create_sequence">CREATE SEQUENCE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE TRIGGER" id="privilege_create_trigger">
+                                                <label for="privilege_create_trigger">CREATE TRIGGER</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE SYNONYM" id="privilege_create_synonym">
+                                                <label for="privilege_create_synonym">CREATE SYNONYM</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="CREATE ANY TABLE" id="privilege_create_any_table">
+                                                <label for="privilege_create_any_table">CREATE ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="ALTER ANY TABLE" id="privilege_alter_any_table">
+                                                <label for="privilege_alter_any_table">ALTER ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="DROP ANY TABLE" id="privilege_drop_any_table">
+                                                <label for="privilege_drop_any_table">DROP ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="SELECT ANY TABLE" id="privilege_select_any_table">
+                                                <label for="privilege_select_any_table">SELECT ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="INSERT ANY TABLE" id="privilege_insert_any_table">
+                                                <label for="privilege_insert_any_table">INSERT ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="UPDATE ANY TABLE" id="privilege_update_any_table">
+                                                <label for="privilege_update_any_table">UPDATE ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="DELETE ANY TABLE" id="privilege_delete_any_table">
+                                                <label for="privilege_delete_any_table">DELETE ANY TABLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="EXECUTE ANY PROCEDURE" id="privilege_execute_any_procedure">
+                                                <label for="privilege_execute_any_procedure">EXECUTE ANY PROCEDURE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="GRANT ANY PRIVILEGE" id="privilege_grant_any_privilege">
+                                                <label for="privilege_grant_any_privilege">GRANT ANY PRIVILEGE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="GRANT ANY ROLE" id="privilege_grant_any_role">
+                                                <label for="privilege_grant_any_role">GRANT ANY ROLE</label>
+                                                
+                                                <input type="checkbox" name="privileges" value="MANAGE ANY QUEUE" id="privilege_manage_any_queue">
+                                                <label for="privilege_manage_any_queue">MANAGE ANY QUEUE</label>
+                                            </div>
+                                        </div>
+                                        
+                                        <label>Roles to be assigned:</label><br>
+                                        <div class="scrollable-container">
+                                            <div class="checkbox-group">
+                                                
+                                                <input type="checkbox" name="roles" value="CONNECT" id="role_connect">
+                                                <label for="role_connect">CONNECT</label>
+                                                
+                                                <input type="checkbox" name="roles" value="RESOURCE" id="role_resource">
+                                                <label for="role_resource">RESOURCE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="DBA" id="role_dba">
+                                                <label for="role_dba">DBA</label>
+                                                
+                                                <input type="checkbox" name="roles" value="EXP_FULL_DATABASE" id="role_exp_full_database">
+                                                <label for="role_exp_full_database">EXP_FULL_DATABASE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="IMP_FULL_DATABASE" id="role_imp_full_database">
+                                                <label for="role_imp_full_database">IMP_FULL_DATABASE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="SELECT_CATALOG_ROLE" id="role_select_catalog_role">
+                                                <label for="role_select_catalog_role">SELECT_CATALOG_ROLE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="EXECUTE_CATALOG_ROLE" id="role_execute_catalog_role">
+                                                <label for="role_execute_catalog_role">EXECUTE_CATALOG_ROLE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="DELETE_CATALOG_ROLE" id="role_delete_catalog_role">
+                                                <label for="role_delete_catalog_role">DELETE_CATALOG_ROLE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="AQ_USER_ROLE" id="role_aq_user_role">
+                                                <label for="role_aq_user_role">AQ_USER_ROLE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="AQ_ADMINISTRATOR_ROLE" id="role_aq_administrator_role">
+                                                <label for="role_aq_administrator_role">AQ_ADMINISTRATOR_ROLE</label>
+                                                
+                                                <input type="checkbox" name="roles" value="ALL" id="role_all">
+                                                <label for="role_all">ALL</label>
+                                          
+                                            </div>
+                                        </div>
+                                        
+                                        <input type="submit" value="Create User">
+                                    </form>
+                                    <div id="create-user-message"></div>
+                                </div>
+                            </div>
+                        {% elif card == 'Executed Program Status' %}
+                            <!-- Logic for Executed Program Status card -->
+                        {% elif card == 'Check Status' %}
+                            <!-- Logic for Check Status card -->
+                        {% elif card == 'Bounce Database' %}
+                            <!-- Logic for Bounce Database card -->
+                        {% elif card == 'Request Now' %}
+                            <!-- Logic for Request Now card -->
+                        {% elif card == 'Fetch Log File' %}
+                            <!-- Logic for Fetch Log File card -->
+                        {% elif card == 'View Logs' %}
+                            <!-- Logic for View Logs card -->
+                        {% elif card == 'Fetch Output Files' %}
+                            <!-- Logic for Fetch Output Files card -->
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Sidebar -->
+    
+    <!-- DB Connect Modal -->
+    <div id="db-connect-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-db-modal">&times;</span>
+            <h2>Database Connection</h2>
+            <form id="db-connect-form">
+                <input type="text" name="db_username" placeholder="DB Username" required>
+                <input type="text" name="hostname" placeholder="Hostname" required>
+                <input type="password" name="db_password" placeholder="Password" required>
+                <input type="text" name="port" placeholder="Port" required>
+                <input type="text" name="service_name" placeholder="Service Name" required>
+                <input type="submit" value="Connect">
+            </form>
+            <div id="db-connect-message"></div>
+        </div>
+    </div>
+
+    <!-- SSH Connect Modal -->
+    <div id="ssh-connect-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-ssh-modal">&times;</span>
+            <h2>SSH Connection</h2>
+            <form id="ssh-connect-form">
+                <input type="text" name="ssh_hostname" placeholder="Hostname" required>
+                <input type="text" name="ssh_username" placeholder="SSH Username" required>
+                <input type="password" name="ssh_password" placeholder="Password" required>
+                <input type="submit" value="Connect">
+            </form>
+            <div id="ssh-connect-message"></div>
+        </div>
+    </div>
+
+    <!-- Chatbot Icon -->
+    <div id="chatbot-icon" class="chatbot-icon">💬</div>
+
+    <!-- Chatbot Interface -->
+    <div id="chatbot-interface" class="chatbot-interface">
+        <div class="chatbot-header">
+            <span>Chatbot</span>
+            <span id="close-chatbot" class="close-btn">&times;</span>
+        </div>
+        <div class="chatbot-content" id="chatbot-content">
+            <div class="chatbot-messages" id="chatbot-messages">
+                <!-- Chat messages will appear here -->
+            </div>
+            <form id="chatbot-form">
+                <input type="text" id="chatbot-input" placeholder="Type your message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Theme switcher functionality
+        const toggle = document.getElementById('theme-toggle');
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            }
+            updateSideMenuColor();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                toggle.checked = true;
+            }
+            updateSideMenuColor();
+        });
+
+        function updateSideMenuColor() {
+            const sideMenu = document.getElementById('side-menu');
+            const menuItems = sideMenu.querySelectorAll('.menu-item');
+            const closeBtn = sideMenu.querySelector('.close-btn');
+            if (document.body.classList.contains('dark-mode')) {
+                sideMenu.style.backgroundColor = '#000';
+                sideMenu.style.color = '#fff';
+                menuItems.forEach(item => {
+                    item.style.backgroundColor = '#333';
+                    item.style.color = '#fff';
+                });
+                closeBtn.style.color = '#fff';
+            } else {
+                sideMenu.style.backgroundColor = '#fff';
+                sideMenu.style.color = '#000';
+                menuItems.forEach(item => {
+                    item.style.backgroundColor = '#fff';
+                    item.style.color = '#000';
+                });
+                closeBtn.style.color = '#000';
+            }
+        }
+
+        // Modal functionality
+        const dbConnectBtn = document.getElementById('db-connect-btn');
+        const dbModal = document.getElementById('db-connect-modal');
+        const closeDbModalBtn = document.getElementById('close-db-modal');
+        const dbConnectForm = document.getElementById('db-connect-form');
+        const dbConnectMessage = document.getElementById('db-connect-message');
+
+        dbConnectBtn.addEventListener('click', function() {
+            dbModal.style.display = 'block';
+        });
+
+        closeDbModalBtn.addEventListener('click', function() {
+            dbModal.style.display = 'none';
+        });
+
+        dbConnectForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(dbConnectForm);
+            const username = formData.get('db_username');
+            const hostname = formData.get('hostname');
+            const password = formData.get('db_password');
+            const port = formData.get('port');
+            const service = formData.get('service_name');
+
+            fetch('/db_connect', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                dbConnectMessage.innerHTML = `<p>${data.message}</p>`;
+                if (data.status === 'success') {
+                    dbConnectBtn.textContent = `Connected: ${service}`;
+                    dbConnectBtn.classList.add('connected');
+                    sessionStorage.setItem('dbConnected', 'true');
+                    sessionStorage.setItem('dbService', service);
+                    setTimeout(() => {
+                        dbModal.style.display = 'none';
+                    }, 500);
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isConnected = sessionStorage.getItem('dbConnected') === 'true';
+            const dbService = sessionStorage.getItem('dbService');
+            if (isConnected) {
+                dbConnectBtn.textContent = `Connected: ${dbService}`;
+                dbConnectBtn.classList.add('connected');
+            }
+        });
+
+        const sshConnectBtn = document.getElementById('ssh-connect-btn');
+        const sshModal = document.getElementById('ssh-connect-modal');
+        const closeSshModalBtn = document.getElementById('close-ssh-modal');
+        const sshConnectForm = document.getElementById('ssh-connect-form');
+        const sshConnectMessage = document.getElementById('ssh-connect-message');
+        const sshStatus = document.getElementById('ssh-status');
+
+        sshConnectBtn.addEventListener('click', function() {
+            sshModal.style.display = 'block';
+        });
+
+        closeSshModalBtn.addEventListener('click', function() {
+            sshModal.style.display = 'none';
+        });
+
+        sshConnectForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            sshStatus.className = 'status-indicator loading';
+            const formData = new FormData(sshConnectForm);
+            const sshHostname = formData.get('ssh_hostname');
+            const sshUsername = formData.get('ssh_username');
+            const sshPassword = formData.get('ssh_password');
+
+            fetch('/ssh_connect', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                sshConnectMessage.innerHTML = `<p>${data.message}</p>`;
+                if (data.status === 'success') {
+                    sshConnectBtn.textContent = 'Connected';
+                    sshConnectBtn.classList.add('connected');
+                    sessionStorage.setItem('sshConnected', 'true');
+                    sshStatus.className = 'status-indicator success';
+                    setTimeout(() => {
+                        sshModal.style.display = 'none';
+                    }, 500);
+                } else {
+                    sshStatus.className = 'status-indicator failure';
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isSshConnected = sessionStorage.getItem('sshConnected') === 'true';
+            if (isSshConnected) {
+                sshConnectBtn.textContent = 'Connected';
+                sshConnectBtn.classList.add('connected');
+                sshStatus.className = 'status-indicator success';
+            }
+        });
+
+        window.onclick = function(event) {
+            if (event.target === dbModal) {
+                dbModal.style.display = 'none';
+            } else if (event.target === sshModal) {
+                sshModal.style.display = 'none';
+            }
+        };
+
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.addEventListener('click', function() {
+            sessionStorage.clear();
+        });
+
+        const chatbotIcon = document.getElementById('chatbot-icon');
+        const chatbotInterface = document.getElementById('chatbot-interface');
+        const closeChatbotBtn = document.getElementById('close-chatbot');
+        const chatbotContent = document.getElementById('chatbot-content');
+        const chatbotForm = document.getElementById('chatbot-form');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        chatbotIcon.addEventListener('click', function() {
+            if (chatbotInterface.style.display === 'block') {
+                chatbotInterface.style.display = 'none';
+                clearChatbotMessages();
+            } else {
+                chatbotInterface.style.display = 'block';
+            }
+        });
+
+        closeChatbotBtn.addEventListener('click', function() {
+            chatbotInterface.style.display = 'none';
+            clearChatbotMessages();
+        });
+
+        chatbotForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userMessage = chatbotInput.value;
+            addMessage('user-message', userMessage);
+            chatbotInput.value = '';
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const aiMessage = data.response;
+                addMessage('ai-message', aiMessage);
+            });
+        });
+
+        function addMessage(className, message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = className;
+            messageElement.textContent = message;
+            chatbotMessages.appendChild(messageElement);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function clearChatbotMessages() {
+            chatbotMessages.innerHTML = '';
+        }
+
+        chatbotInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                chatbotForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        function openNav() {
+            document.getElementById("side-menu").style.width = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("side-menu").style.width = "0";
+        }
+
+    </script>
+        
+    <script src=".\static\js\cpuchart.js"></script>
+    <script src=".\static\js\createuser.js"></script>
+    <script src=".\static\js\sessionlock.js"></script>
+    <script src=".\static\js\log4j.js"></script>
+    <script src=".\static\js\concurrent.js"></script>
+    <script src=".\static\js\longrun.js"></script>
+
+   
+
+</body>
+</html>

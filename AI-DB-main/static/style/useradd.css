@@ -1,0 +1,139 @@
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 9999; /* Ensure it's on top of other content */
+    left: 50%; /* Center horizontally */
+    top: 50%; /* Center vertically */
+    transform: translate(-50%, -50%); /* Center the popup */
+    width: 90%; /* Adjust width as needed */
+    max-width: 700px; /* Max width for larger screens */
+    max-height: 90%; /* Limit height to 90% of viewport */
+    overflow-y: auto; /* Enable vertical scroll if needed */
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 6px;
+    box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+/* Ensure the popup content is on top */
+.popup-content {
+    position: relative;
+    z-index: inherit; /* Inherit z-index from parent (.popup) */
+}
+
+/* Close button style */
+.close {
+    color: #aaa;
+    position: absolute;
+    top: 1px;
+    right: 45px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form label style */
+label {
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Form input and select style */
+input[type="text"],
+input[type="password"],
+select {
+    width: calc(100% - 16px); /* Adjust for padding and border */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensure elements fit within specified width */
+}
+
+/* Submit button style */
+#create-user-form input[type="submit"] {
+    background-color: #000000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+#create-user-form input[type="submit"]:hover {
+    background-color: #666666;
+}
+
+/* Align form elements */
+#create-user-form label,
+#create-user-form input,
+#create-user-form select {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Style for the create user button */
+#create-user-btn {
+    background-color: #000000;
+    color: white;
+    padding: 9px 120px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+#create-user-btn:hover {
+    background-color: #666666;
+}
+
+/* Scrollable container for checkboxes */
+.scrollable-container {
+    max-height: 100px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enables vertical scrolling */
+    border: 1px solid #ccc; /* Border for the container */
+    padding: 10px; /* Padding inside the container */
+    margin-bottom: 15px; /* Space below the container */
+    border-radius: 4px; /* Rounded corners */
+    background-color: #f9f9f9; /* Light background color */
+}
+
+/* Additional styling for checkboxes and labels */
+.checkbox-group {
+    display: flex;
+    flex-direction: column; /* Stack checkboxes vertically */
+    gap: 5px; /* Space between each checkbox */
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 0.8em;
+    margin: 0; /* Remove default margin */
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 10px; /* Space between checkbox and label */
+    cursor: pointer;
+    transform: scale(0.9); /* Slightly smaller checkboxes */
+}
+
+/* Optional: Ensure proper box-sizing */
+.checkbox-group input[type="checkbox"], 
+.checkbox-group label {
+    box-sizing: border-box;
+}
+
+/* Reset styles to avoid alignment issues */
+.checkbox-group input[type="checkbox"] {
+    vertical-align: middle; /* Ensure checkbox is aligned with text */
+}
+

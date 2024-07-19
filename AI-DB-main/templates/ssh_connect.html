@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSH Connect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('db_connect') }}">DB Connect</a>
+        <a href="{{ url_for('ssh_connect') }}">SSH Connect</a>
+        <div class="toggle-container">
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
+            </label>
+            <span>Toggle Dark/Light Mode</span>
+        </div>
+        <a class="logout-btn" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <div class="form-container">
+        <h2>SSH Connection</h2>
+        <form action="{{ url_for('ssh_connect') }}" method="post">
+            <input type="text" name="hostname" placeholder="Hostname" required>
+            <input type="text" name="username" placeholder="SSH Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="submit" value="Connect">
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="messages">
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+    <script>
+        const toggle = document.getElementById('theme-toggle');
+        toggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.style.backgroundColor = '#333';
+                document.body.style.color = '#fff';
+            } else {
+                document.body.style.backgroundColor = '#f0f0f0';
+                document.body.style.color = '#000';
+            }
+        });
+    </script>
+</body>
+</html>

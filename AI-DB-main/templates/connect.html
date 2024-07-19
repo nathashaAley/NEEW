@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect to Database and SSH</title>
+    <style>/* style.css */
+        /* Global reset and basic styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left {
+            flex: 1;
+        }
+
+        .nav-right {
+            flex: 1;
+            text-align: right;
+        }
+
+        .nav-right a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .connection-form {
+            width: 45%;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .connection-form h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .connection-form form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .connection-form input[type="text"],
+        .connection-form input[type="password"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .connection-form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .connection-form button:hover {
+            background-color: #45a049;
+        }
+
+        #db-connect-message,
+        #ssh-connect-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loader {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000; /* Ensure it's above other content */
+            display: none; /* Initially hidden */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="nav-left">
+            <span>Welcome, {{ username }}</span>
+        </div>
+        <div class="nav-right">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}" id="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-container">
+            <div id="db-connect-form" class="connection-form">
+                <h2>Database Connection</h2>
+                <form id="db-form">
+                    <input type="text" name="db_username" placeholder="DB Username" required>
+                    <input type="text" name="hostname" placeholder="Hostname" required>
+                    <input type="password" name="db_password" placeholder="Password" required>
+                    <input type="text" name="port" placeholder="Port" required>
+                    <input type="text" name="service_name" placeholder="Service Name" required>
+                    <button type="submit">Connect</button>
+                    <div id="db-loader" class="loader"></div> <!-- Loader -->
+                </form>
+                <div id="db-connect-message"></div>
+            </div>
+
+            <div id="ssh-connect-form" class="connection-form">
+                <h2>SSH Connection</h2>
+                <form id="ssh-form">
+                    <input type="text" name="ssh_hostname" placeholder="Hostname" required>
+                    <input type="text" name="ssh_username" placeholder="SSH Username" required>
+                    <input type="password" name="ssh_password" placeholder="Password" required>
+                    <button type="submit">Connect</button>
+                    <div id="ssh-loader" class="loader"></div> <!-- Loader -->
+                </form>
+                <div id="ssh-connect-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dbForm = document.getElementById('db-form');
+            const sshForm = document.getElementById('ssh-form');
+            const dbConnectMessage = document.getElementById('db-connect-message');
+            const sshConnectMessage = document.getElementById('ssh-connect-message');
+            const dbLoader = document.getElementById('db-loader');
+            const sshLoader = document.getElementById('ssh-loader');
+
+            let dbConnected = false;
+            let sshConnected = false;
+
+            function checkBothConnections() {
+                if (dbConnected && sshConnected) {
+                    window.location.href = "{{ url_for('dashboard') }}";
+                }
+            }
+
+            dbForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(dbForm);
+
+                // Show loader
+                dbLoader.style.display = 'block';
+
+                fetch('/db_connect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    dbConnectMessage.innerHTML = `<p>${data.message}</p>`;
+                    if (data.status === 'success') {
+                        dbConnectMessage.classList.add('success');
+                        dbConnected = true;
+                        checkBothConnections();
+                    } else {
+                        dbConnectMessage.classList.add('error');
+                        dbConnected = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error connecting to database:', error);
+                    dbConnectMessage.innerHTML = `<p>Error connecting to database. Please try again.</p>`;
+                    dbConnectMessage.classList.add('error');
+                    dbConnected = false;
+                })
+                .finally(() => {
+                    // Hide loader
+                    dbLoader.style.display = 'none';
+                });
+            });
+
+            sshForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(sshForm);
+
+                // Show loader
+                sshLoader.style.display = 'block';
+
+                fetch('/ssh_connect', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    sshConnectMessage.innerHTML = `<p>${data.message}</p>`;
+                    if (data.status === 'success') {
+                        sshConnectMessage.classList.add('success');
+                        sshConnected = true;
+                        checkBothConnections();
+                    } else {
+                        sshConnectMessage.classList.add('error');
+                        sshConnected = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error connecting via SSH:', error);
+                    sshConnectMessage.innerHTML = `<p>Error connecting via SSH. Please try again.</p>`;
+                    sshConnectMessage.classList.add('error');
+                    sshConnected = false;
+                })
+                .finally(() => {
+                    // Hide loader
+                    sshLoader.style.display = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
